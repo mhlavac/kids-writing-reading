@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Writing</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .page {
+            width: 21cm;
+            min-height: 29.7cm;
+            padding: 1cm;
+            margin: 1cm auto;
+            border: 1px #D3D3D3 solid;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        @media print {
+            form {
+                display: none;
+                margin: 0;
+            }
+
+            form div {
+                display: none;
+            }
+
+            label {
+                display: none;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .page {
+                margin: 0;
+                border: none;
+                background: white;
+                box-shadow: none;
+                min-height: 1cm;
+            }
+        }
+
+        form {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        form div {
+            display: flex;
+        }
+
+        label {
+            padding: 10px;
+        }
+
+        input {
+            display: block;
+        }
+
+        #result {
+            font-size: 28px;
+        }
+
+        .line {
+            display: block;
+            word-break: keep-all;
+            overflow: hidden;
+            line-height: 100px;
+            height: 100px;
+            border-bottom: solid 1px rgba(0,0,0,0.1);
+            text-overflow: ellipis;
+        }
+
+        .word {
+            display: inline-block;
+            padding-right: 30px;
+            white-space:nowrap;
+        }
+
+        .word:nth-child(1) {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="no-print">
+    <form onkeyup="showWord();" onsubmit="showWord(); return false;">
+        <div>
+            <label>
+                Slovo
+                <input onkeyup="showWord();" onchange="showWord();" type="text" name="word" placeholder="Slovo... mama" id="form-word" />
+            </label>
+            <label>
+                Opakovani
+                <input onkeyup="showWord();" onchange="showWord();" type="number" name="repeat" placeholder="Kolikrat se opakuje... 3" id="form-repeat" value="1" />
+            </label>
+            <button style="width: 200px;" onclick="print();">Print</button>
+        </div>
+    </form>
+</div>
+
+<div class="page">
+    <div id="result" style="font-family: 'Lato Light'">
+    </div>
+</div>
+<script>
+    const element = document.querySelector('#result');
+    const input = document.querySelector('#form-word');
+    const repeatElement = document.querySelector('#form-repeat');
+
+    function showWord()
+    {
+        const word = input.value;
+        const repeats = repeatElement.value >= 1 ? repeatElement.value : 1;
+        element.innerHTML = generateHTML(word, repeats);
+    }
+
+    function generateHTML(word, repeats)
+    {
+        let result = '';
+        for (let i = 0; i <= word.length; i++) {
+            for (let j = 0; j < repeats; j++) {
+                result += '<div class="line">';
+                for (let j = 0; j < 10; j++) {
+                    result += prepareWord(word, i);
+                }
+                result += '</div>';
+
+                if (i === 0) {
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    function prepareWord(word, greyChars)
+    {
+        const wordArray = word.split('');
+        let normalChars = '';
+        let greyedChars = '';
+        while (greyChars > 0) {
+            greyedChars = wordArray.pop() + greyedChars;
+            greyChars--;
+        }
+
+        for (const char of wordArray) {
+            normalChars += char;
+        }
+
+        return `<div class="word">${normalChars}<span style="opacity: 0.45;">${greyedChars}</span></div>`;
+    }
+</script>
+</body>
+</html>
