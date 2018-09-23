@@ -82,7 +82,8 @@
 
         .word {
             display: inline-block;
-            padding-right: 30px;
+            padding-right: 35px;
+            margin-bottom: 20px;
             white-space:nowrap;
         }
 
@@ -97,6 +98,14 @@
             width: 100%;
             bottom: 13px;
         }
+
+        .unfilled-text {
+            opacity: 0.5;
+        }
+
+        .hidden {
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
@@ -104,14 +113,18 @@
     <form onkeyup="showWord();" onsubmit="showWord(); return false;">
         <div>
             <label>
-                Slovo
+                <span id="form-word-placeholder">Slovo</span>
                 <input onkeyup="showWord();" onchange="showWord();" type="text" name="word" placeholder="Slovo... mama" id="form-word" />
             </label>
             <label>
-                Opakovani
+                <span id="form-repeat-placeholder">Opakovani</span>
                 <input onkeyup="showWord();" onchange="showWord();" type="number" name="repeat" placeholder="Kolikrat se opakuje... 3" id="form-repeat" value="1" />
             </label>
-            <button style="width: 200px;" onclick="print();">Print</button>
+            <select id="form-language" onchange="showWord();">
+                <option value="cz" selected>Česky</option>
+                <option value="en">English</option>
+            </select>
+            <button id="form-print" style="width: 200px;" onclick="print();">Print</button>
         </div>
     </form>
 </div>
@@ -121,15 +134,36 @@
     </div>
 </div>
 <script>
+    const trans = {
+        'cz': {
+            'form_word_label': 'Slovo',
+            'form_word_placeholder': 'Slovo... např. "máma"',
+            'form_repeat_label': 'Opakování',
+            'form_repeat_placeholder': 'Kolikrat se opakuje... např. 3',
+            'form_print': 'Vytisknout',
+        },
+        'en': {
+            'form_word_label': 'Word',
+            'form_word_placeholder': 'Word... ex. "mother"',
+            'form_repeat_label': 'Repat',
+            'form_repeat_placeholder': 'Times repetition... ex. 3',
+            'form_print': 'Print',
+        }
+    };
     const element = document.querySelector('#result');
-    const input = document.querySelector('#form-word');
+    const inputElement = document.querySelector('#form-word');
+    const inputElementLabel = document.querySelector('#form-word-placeholder');
     const repeatElement = document.querySelector('#form-repeat');
+    const repeatElementLabel = document.querySelector('#form-repeat-placeholder');
+    const printElement = document.querySelector('#form-print');
+    const languageElement = document.querySelector('#form-language');
 
     function showWord()
     {
-        const word = input.value;
+        const word = inputElement.value;
         const repeats = repeatElement.value >= 1 ? repeatElement.value : 1;
         element.innerHTML = generateHTML(word, repeats);
+        translate(trans[languageElement.value]);
     }
 
     function generateHTML(word, repeats)
@@ -137,11 +171,19 @@
         let result = '';
         for (let i = 0; i <= word.length; i++) {
             for (let j = 0; j < repeats; j++) {
-                result += '<div class="line"><div class="capital-line"></div>';
+                result += '<div class="line">';
+                result += prepareWord(word, 0, '');
                 for (let j = 0; j < 10; j++) {
-                    result += prepareWord(word, i);
+                    result += prepareWord(word, i, 'unfilled-text');
                 }
-                result += '</div>';
+                result += '<div class="capital-line"></div></div>';
+
+                result += '<div class="line">';
+                result += prepareWord(word, 0, '');
+                for (let j = 0; j < 10; j++) {
+                    result += prepareWord(word, i, 'hidden');
+                }
+                result += '<div class="capital-line"></div></div>';
 
                 if (i === 0) {
                     break;
@@ -152,7 +194,7 @@
         return result;
     }
 
-    function prepareWord(word, greyChars)
+    function prepareWord(word, greyChars, className)
     {
         const wordArray = word.split('');
         let normalChars = '';
@@ -166,8 +208,19 @@
             normalChars += char;
         }
 
-        return `<div class="word">${normalChars}<span style="opacity: 0.5;">${greyedChars}</span></div>`;
+        return `<div class="word">${normalChars}<span class="${className}">${greyedChars}</span></div>`;
     }
+
+    function translate(translations)
+    {
+        inputElement.setAttribute('placeholder', translations['form_word_placeholder']);
+        inputElementLabel.innerHTML = translations['form_word_label'];
+        repeatElement.setAttribute('placeholder', translations['form_repeat_placeholder']);
+        repeatElementLabel.innerHTML = translations['form_repeat_label'];
+        printElement.innerHTML = translations['form_print'];
+    }
+
+
 </script>
 </body>
 </html>
