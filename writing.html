@@ -72,12 +72,16 @@
         .line {
             display: block;
             word-break: keep-all;
-            overflow: hidden;
             line-height: 18px;
             height: 18px;
             padding-top: 50px;
             border-bottom: solid 1px rgba(0,0,0,0.2);
             position: relative;
+        }
+
+        .line-wrapper {
+            overflow: hidden;
+            padding-bottom: 10px;
         }
 
         .word {
@@ -169,21 +173,27 @@
     function generateHTML(word, repeats)
     {
         let result = '';
+        if (word === '') {
+            return '';
+        }
+
         for (let i = 0; i <= word.length; i++) {
             for (let j = 0; j < repeats; j++) {
+                result += '<div class="line-wrapper">';
                 result += '<div class="line">';
                 result += prepareWord(word, 0, '');
                 for (let j = 0; j < 10; j++) {
                     result += prepareWord(word, i, 'unfilled-text');
                 }
-                result += '<div class="capital-line"></div></div>';
+                result += '<div class="capital-line"></div></div></div>';
 
+                result += '<div class="line-wrapper">';
                 result += '<div class="line">';
                 result += prepareWord(word, 0, '');
                 for (let j = 0; j < 10; j++) {
                     result += prepareWord(word, i, 'hidden');
                 }
-                result += '<div class="capital-line"></div></div>';
+                result += '<div class="capital-line"></div></div></div>';
 
                 if (i === 0) {
                     break;
@@ -220,6 +230,7 @@
         printElement.innerHTML = translations['form_print'];
     }
 
+    document.addEventListener('DOMContentLoaded', showWord, false);
 
 </script>
 </body>
